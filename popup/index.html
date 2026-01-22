@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>レポート管理ダッシュボード</title>
+		<link rel="stylesheet" href="styles.css">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
+		<script src="../shared/config.js"></script>
+		<script src="scripts/date.js"></script>
+		<script type="module" src="scripts/report-time.js"></script>
+	</head>
+	<body>
+		<div class="header">
+			<ul>
+				<li>
+					<p class="month">01</p>
+			    <p>No._______</p>
+				</li>
+				<li>
+					<p id="date">Date 26/01/01</p>
+				</li>
+			</ul>
+		</div>
+		<div class="dashboard">
+			<ul>
+				<img src="img/zenKun.svg" alt="ZenKun Logo" width="100" height="100">
+				<li>
+					<h2>レポート数:</h2>
+					<p data-deadline-report-count>n/a件</p>
+					<div class="limit-underline"></div>
+				</li>
+				<li>
+					<h2>レポート学習時間:</h2>
+					<p id="remainingReportTime" data-remaining-report-time>n/a</p>
+					<p id="remainingReportPercent" data-remaining-report-percent >n/a</p>
+					<div class="limit-time-underline"></div>
+				</li>
+			</ul>
+			<div class="buttons">
+			<button type="button" id="calendarBTN" class="is-hidden">GCal追加</button>
+			<button type="submit" id="analysisBTN">年間時間</button>
+			<button type="submit" id="scheduleBTN">スケジュール作成</button>
+			</div>
+			<div class="clips"></div>
+			<div class="line"></div>
+		</div>
+		<div class="report-range-overlay schedule-overlay" data-schedule-overlay>
+			<div class="schedule-overlay__card">
+				<div class="schedule-overlay__header">
+					<h3>スケジュール用プロンプト</h3>
+					<button type="button" class="schedule-overlay__close" data-schedule-overlay-close>閉じる</button>
+				</div>
+				<p class="schedule-overlay__hint">学習頻度/1日の学習時間と締切前倒し日を入れてプロンプトを作成します</p>
+				<div class="schedule-overlay__controls">
+					<label>
+						学習タイプ
+						<select data-schedule-study-mode>
+							<option value="frequency">学習頻度</option>
+							<option value="daily-time">1日の学習時間</option>
+						</select>
+					</label>
+					<label>
+						入力
+						<input type="text" placeholder="例: 3日に1回" data-schedule-study-value>
+					</label>
+				</div>
+				<div class="schedule-overlay__controls">
+					<label>
+						提出期限の何日前に終わらせる？
+						<input type="number" min="0" value="0" data-schedule-days-before>
+					</label>
+					<div class="schedule-overlay__meta" data-schedule-meta>対象月を取得中...</div>
+				</div>
+				<div class="schedule-overlay__status" data-schedule-status>プロンプト作成に必要な情報を取得中...</div>
+				<div class="schedule-overlay__actions">
+					<button type="button" class="schedule-overlay__generate" data-schedule-generate>プロンプト生成</button>
+					<button type="button" class="schedule-overlay__copy" data-schedule-copy disabled>コピー</button>
+					<button type="button" class="schedule-overlay__gpt" data-schedule-gpt>GPTへ移動</button>
+				</div>
+				<textarea class="schedule-overlay__prompt" rows="3" readonly placeholder="現在:9/2 対象:9月 10教科 学習:3日に1回" data-schedule-prompt></textarea>
+			</div>
+		</div>
+		<div class="report-range-overlay" data-report-range-overlay>
+			<div class="report-range-overlay__card">
+				<div class="report-range-overlay__header">
+					<h3>6〜12月レポート時間</h3>
+					<button type="button" class="report-range-overlay__close" data-report-range-overlay-close>閉じる</button>
+				</div>
+				<div class="report-range-overlay__controls">
+					<label>
+						対象年
+						<input type="number" min="2000" max="2100" data-report-range-year>
+					</label>
+					<button type="button" class="report-range-overlay__fetch" data-report-range-fetch>取得</button>
+				</div>
+				<div class="report-range-overlay__summary" data-report-range-summary>未取得</div>
+				<div class="report-range-overlay__list" data-report-range-results>
+					<p class="report-range-overlay__placeholder">「分析開始」を押すと6〜12月のレポート学習時間が表示されます</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

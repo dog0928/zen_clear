@@ -1,0 +1,47 @@
+{
+  "name": "Zen Kun Beta",
+  "description": "Zen Study report schedule Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "tabs"
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+		"default_icon": "icons/icon128.png"
+  },
+	"icons": {
+		"16": "icons/icon16.png",
+		"32": "icons/icon32.png",
+		"48": "icons/icon48.png",
+		"128": "icons/default-icon128.png"
+	},
+	"host_permissions": [
+		"https://api.nnn.ed.nico/*",
+		"https://www.nnn.ed.nico/*",
+		"https://chatgpt.com/*",
+		"https://chat.openai.com/*"
+	],
+	"content_scripts": [
+		{
+			"matches": ["https://www.nnn.ed.nico/*"],
+  		"all_frames": true,
+			"js": [
+				"shared/config.js",
+				"content-scripts/api-proxy.js"
+			],
+			"run_at": "document_start"
+		},
+		{
+			"matches": [
+				"https://chatgpt.com/*",
+				"https://chat.openai.com/*"
+			],
+			"js": [
+				"shared/config.js",
+				"content-scripts/chatgpt-csv-calendar.js"
+			],
+			"run_at": "document_idle"
+		}
+	]
+}
