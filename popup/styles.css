@@ -6,6 +6,7 @@ html, body {
 	height: auto;
 	background-color: rgba(237, 214, 197, 0.1);
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 html, body, .buttons button {
@@ -115,8 +116,9 @@ body {
 .buttons {
 	display: flex;
 	justify-content: flex-end;
-	gap: 8px;
-	flex-wrap: wrap;
+	gap: 6px;
+	flex-wrap: nowrap;
+	align-items: center;
 
 	position: absolute;
 	bottom: 25px;
@@ -126,7 +128,7 @@ body {
 
 .buttons button {
   color: #FFFFFF;
-	font-size: 18px;
+	font-size: 14px;
 	font-weight: 350;
 
 	border: 2px solid #FFFFFF;
@@ -134,8 +136,9 @@ body {
 	box-shadow: 4px 3px 5px rgba(0, 0, 0, 0.25);
 
   display: block;
-	padding: 5px 10px;
+	padding: 4px 8px;
 	cursor: pointer;
+	white-space: nowrap;
 }
 
 #analysisBTN {
@@ -144,6 +147,10 @@ body {
 
 #scheduleBTN {
 	background-color: #FF582E;
+}
+
+#reminderBTN {
+	background-color: #4FA38C;
 }
 
 .clips {
@@ -414,4 +421,98 @@ body {
 	background: rgba(255, 255, 255, 0.8);
 	padding: 8px;
 	resize: none;
+}
+
+.reminder-overlay {
+	z-index: 3;
+}
+
+.reminder-overlay__card {
+	width: 90%;
+	max-width: 420px;
+	max-height: 90vh;
+	background: #fff3e8;
+	border-radius: 10px;
+	padding: 14px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow-y: auto;
+}
+
+.reminder-overlay__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.reminder-overlay__header h3 {
+	margin: 0;
+	font-size: 16px;
+}
+
+.reminder-overlay__close,
+.reminder-overlay__check {
+	font-family: "Potta One", system-ui;
+	border: 1px solid #333;
+	border-radius: 4px;
+	background: #ffd2a8;
+	cursor: pointer;
+	padding: 4px 10px;
+}
+
+.reminder-overlay__summary {
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.reminder-overlay__list {
+	flex: 1;
+	overflow-y: auto;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	padding: 8px;
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.reminder-overlay__placeholder {
+	margin: 0;
+	color: #666;
+	text-align: center;
+}
+
+.reminder-overlay__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 4px;
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.reminder-overlay__row:last-child {
+	border-bottom: none;
+}
+
+.reminder-overlay__main {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.reminder-overlay__meta {
+	font-size: 11px;
+	color: #8a5c00;
+}
+
+.reminder-overlay__row.is-completed strong {
+	text-decoration: line-through;
+	color: #888;
+}
+
+.reminder-overlay__row.is-completed .reminder-overlay__meta {
+	color: #999;
 }

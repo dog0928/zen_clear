@@ -1,20 +1,27 @@
 {
-  "name": "Zen Kun Beta",
+  "name": "Zen Clear Beta",
   "description": "Zen Study report schedule Extension",
   "version": "1.0",
   "manifest_version": 3,
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage",
+    "alarms",
+    "notifications"
   ],
   "action": {
     "default_popup": "popup/index.html",
-		"default_icon": "icons/icon128.png"
+		"default_icon": "icons/default-icon128.png"
   },
+	"background": {
+		"service_worker": "background/reminders.js",
+		"type": "module"
+	},
 	"icons": {
 		"16": "icons/icon16.png",
 		"32": "icons/icon32.png",
 		"48": "icons/icon48.png",
-		"128": "icons/default-icon128.png"
+		"128": "icons/icon128.png"
 	},
 	"host_permissions": [
 		"https://api.nnn.ed.nico/*",

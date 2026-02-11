@@ -1,6 +1,8 @@
 (() => {
 	const DEFAULT_PATH_PREFIX = '';
 	const BUTTON_CLASS = 'zen-csv-calendar-btn';
+	const REMINDER_BUTTON_CLASS = 'zen-csv-reminder-btn';
+	const ACTIONS_CLASS = 'zen-csv-calendar-actions';
 	const STYLE_ID = 'zen-csv-calendar-style';
 	const PROCESSED_ATTR = 'data-zen-csv-calendar-attached';
 	const IMPORT_URL = 'https://calendar.google.com/calendar/u/0/r/settings/export';
@@ -32,11 +34,18 @@
 		style.id = STYLE_ID;
 		style.textContent = `
 			pre.${BUTTON_CLASS}-container { position: relative; }
-			.${BUTTON_CLASS} {
+			.${ACTIONS_CLASS} {
 				position: absolute;
 				top: 6px;
 				right: 8px;
 				z-index: 5;
+				display: flex;
+				gap: 6px;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+			.${BUTTON_CLASS},
+			.${REMINDER_BUTTON_CLASS} {
 				font-size: 12px;
 				padding: 4px 8px;
 				border-radius: 6px;
@@ -48,12 +57,14 @@
 				transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
 				font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 			}
-			.${BUTTON_CLASS}:hover {
+			.${BUTTON_CLASS}:hover,
+			.${REMINDER_BUTTON_CLASS}:hover {
 				transform: translateY(-1px);
 				box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 				background: #eef2f7;
 			}
-			.${BUTTON_CLASS}:active {
+			.${BUTTON_CLASS}:active,
+			.${REMINDER_BUTTON_CLASS}:active {
 				transform: translateY(0);
 				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 			}
@@ -281,6 +292,74 @@
 		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	};
 
+	const buildReminderPayload = (events) => (
+		events.map((event) => ({
+			title: event.title,
+			description: event.description,
+			location: event.location,
+			startAt: event.startDate.toISOString(),
+			endAt: event.endDate.toISOString(),
+			hasTime: event.hasTime,
+		}))
+	);
+
+	const sendReminderAddRequest = (events) => new Promise((resolve) => {
+		if (!chrome?.runtime?.sendMessage) {
+			resolve({ ok: false });
+			return;
+		}
+
+		chrome.runtime.sendMessage({ type: 'ZEN_REMINDER_ADD', events }, (response) => {
+			if (chrome.runtime.lastError) {
+				resolve({ ok: false });
+				return;
+			}
+			resolve(response ?? { ok: false });
+		});
+	});
+
+	const setButtonTemporaryText = (button, text) => {
+		if (!button) {
+			return () => {};
+		}
+		const original = button.textContent;
+		button.textContent = text;
+		return () => {
+			button.textContent = original;
+		};
+	};
+
+	const handleReminderClick = async (button, getCodeText) => {
+		const codeText = typeof getCodeText === 'function' ? getCodeText() : '';
+		const events = parseEventsFromCsv(codeText);
+		if (!events.length) {
+			window.alert('CSVから予定を認識できませんでした。ヘッダーに開始日/開始時間の列が含まれているか確認してください。');
+			return;
+		}
+
+		const payload = buildReminderPayload(events);
+		const resetLabel = setButtonTemporaryText(button, '保存中...');
+		if (button) {
+			button.disabled = true;
+		}
+
+		const result = await sendReminderAddRequest(payload);
+		if (!result?.ok) {
+			resetLabel();
+			setButtonTemporaryText(button, '失敗');
+		} else {
+			const addedCount = Number(result.addedCount ?? 0);
+			setButtonTemporaryText(button, addedCount ? `${addedCount}件保存` : '保存済み');
+		}
+
+		setTimeout(() => {
+			resetLabel();
+			if (button) {
+				button.disabled = false;
+			}
+		}, 1400);
+	};
+
 	const handleConvertClick = (getCodeText) => {
 		const codeText = typeof getCodeText === 'function' ? getCodeText() : '';
 		const events = parseEventsFromCsv(codeText);
@@ -292,6 +371,29 @@
 		const ics = buildICS(events);
 		downloadICS(ics);
 		window.open(IMPORT_URL, '_blank', 'noopener');
+	};
+
+	const ensureActionContainer = (pre) => {
+		const existing = pre.querySelector(`.${ACTIONS_CLASS}`);
+		if (existing) {
+			return existing;
+		}
+		const container = document.createElement('div');
+		container.className = ACTIONS_CLASS;
+		pre.appendChild(container);
+		return container;
+	};
+
+	const createActionButton = (className, label, onClick) => {
+		const button = document.createElement('button');
+		button.className = className;
+		button.type = 'button';
+		button.textContent = label;
+		button.addEventListener('click', (event) => {
+			event.stopPropagation();
+			onClick(button);
+		});
+		return button;
 	};
 
 	const attachButtonToCode = (codeEl) => {
@@ -311,16 +413,19 @@
 		pre.setAttribute(PROCESSED_ATTR, 'true');
 		pre.classList.add(`${BUTTON_CLASS}-container`);
 
-		const button = document.createElement('button');
-		button.className = BUTTON_CLASS;
-		button.type = 'button';
-		button.textContent = 'Googleカレンダーに追加';
-		button.addEventListener('click', (event) => {
-			event.stopPropagation();
-			handleConvertClick(() => codeEl.textContent ?? '');
-		});
+		const container = ensureActionContainer(pre);
+		const calendarButton = createActionButton(
+			BUTTON_CLASS,
+			'Googleカレンダーに追加',
+			() => handleConvertClick(() => codeEl.textContent ?? ''),
+		);
+		const reminderButton = createActionButton(
+			REMINDER_BUTTON_CLASS,
+			'リマインダーを追加',
+			(button) => handleReminderClick(button, () => codeEl.textContent ?? ''),
+		);
 
-		pre.appendChild(button);
+		container.append(calendarButton, reminderButton);
 	};
 
 	const scanForCsvBlocks = () => {

@@ -39,6 +39,7 @@
 			</ul>
 			<div class="buttons">
 			<button type="button" id="calendarBTN" class="is-hidden">GCal追加</button>
+			<button type="button" id="reminderBTN">リマインダー</button>
 			<button type="submit" id="analysisBTN">年間時間</button>
 			<button type="submit" id="scheduleBTN">スケジュール作成</button>
 			</div>
@@ -79,6 +80,18 @@
 					<button type="button" class="schedule-overlay__gpt" data-schedule-gpt>GPTへ移動</button>
 				</div>
 				<textarea class="schedule-overlay__prompt" rows="3" readonly placeholder="現在:9/2 対象:9月 10教科 学習:3日に1回" data-schedule-prompt></textarea>
+			</div>
+		</div>
+		<div class="report-range-overlay reminder-overlay" data-reminder-overlay>
+			<div class="reminder-overlay__card">
+				<div class="reminder-overlay__header">
+					<h3>リマインダー</h3>
+					<button type="button" class="reminder-overlay__close" data-reminder-overlay-close>閉じる</button>
+				</div>
+				<div class="reminder-overlay__summary" data-reminder-summary>未登録</div>
+				<div class="reminder-overlay__list" data-reminder-list>
+					<p class="reminder-overlay__placeholder">リマインダーがありません</p>
+				</div>
 			</div>
 		</div>
 		<div class="report-range-overlay" data-report-range-overlay>
