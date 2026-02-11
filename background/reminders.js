@@ -3,6 +3,7 @@ const ALARM_PREFIX = 'zen-reminder-';
 const REMINDER_DAYS_BEFORE = 3;
 const DEFAULT_REMINDER_HOUR = 9;
 const NOTIFICATION_ICON = 'icons/icon128.png';
+const YOUTUBE_URL_PATTERN = '*://*.youtube.com/*';
 
 const storageGet = (key) => new Promise((resolve) => {
 	chrome.storage.local.get(key, (data) => resolve(data[key]));
@@ -34,6 +35,33 @@ const parseDate = (value) => {
 	}
 	const date = new Date(value);
 	return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getOverdueReminders = async () => {
+	const reminders = await getStoredReminders();
+	const now = Date.now();
+	return reminders.filter((r) => {
+		if (r.completed) return false;
+		const startDate = parseDate(r.startAt);
+		if (!startDate) return false;
+		return startDate.getTime() <= now;
+	});
+};
+
+const hasOverdueReminders = async () => {
+	const overdue = await getOverdueReminders();
+	return overdue.length > 0;
+};
+
+const notifyYouTubeTabs = async (messageType) => {
+	try {
+		const tabs = await chrome.tabs.query({ url: YOUTUBE_URL_PATTERN });
+		for (const tab of tabs) {
+			chrome.tabs.sendMessage(tab.id, { type: messageType }).catch(() => {});
+		}
+	} catch {
+		// ignore
+	}
 };
 
 const formatDateText = (value, hasTime) => {
@@ -264,8 +292,53 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 	if (message.type === 'ZEN_REMINDER_COMPLETE') {
 		updateReminderCompletion(message.id, message.completed)
-			.then((result) => sendResponse(result))
+			.then(async (result) => {
+				// 完了後に期限切れが残っているかチェックし、YouTubeタブに通知
+				const stillOverdue = await hasOverdueReminders();
+				if (!stillOverdue) {
+					await notifyYouTubeTabs('ZEN_YOUTUBE_UNBLOCK');
+				}
+				sendResponse(result);
+			})
 			.catch(() => sendResponse({ ok: false }));
+		return true;
+	}
+
+	if (message.type === 'ZEN_CHECK_OVERDUE_REMINDERS') {
+		hasOverdueReminders()
+			.then((hasOverdue) => sendResponse({ hasOverdue }))
+			.catch(() => sendResponse({ hasOverdue: false }));
+		return true;
+	}
+
+	if (message.type === 'ZEN_GET_OVERDUE_REMINDERS') {
+		getOverdueReminders()
+			.then((reminders) => sendResponse({ reminders }))
+			.catch(() => sendResponse({ reminders: [] }));
+		return true;
+	}
+
+	if (message.type === 'ZEN_NOTIFY_ALL_COMPLETED') {
+		notifyYouTubeTabs('ZEN_YOUTUBE_UNBLOCK')
+			.then(() => sendResponse({ ok: true }))
+			.catch(() => sendResponse({ ok: false }));
+		return true;
+	}
+
+	// iframe 内のページから content script へメッセージをリレーする
+	if (message.type === 'ZEN_RELAY_TO_TAB') {
+		const tabId = _sender?.tab?.id;
+		if (!tabId) {
+			sendResponse(null);
+			return true;
+		}
+		chrome.tabs.sendMessage(tabId, message.payload, (response) => {
+			if (chrome.runtime.lastError) {
+				sendResponse(null);
+				return;
+			}
+			sendResponse(response);
+		});
 		return true;
 	}
 });

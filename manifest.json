@@ -49,6 +49,36 @@
 				"content-scripts/chatgpt-csv-calendar.js"
 			],
 			"run_at": "document_idle"
+		},
+		{
+			"matches": [
+				"*://*.youtube.com/*"
+			],
+			"js": [
+				"content-scripts/youtube-block.js"
+			],
+			"run_at": "document_idle"
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"matches": [
+				"*://*.youtube.com/*"
+			],
+			"resources": [
+				"youtube-block/style.css",
+				"youtube-block/img/whyyyyy.jpg",
+				"youtube-block/initial.html",
+				"youtube-block/initial.js",
+				"youtube-block/question.html",
+				"youtube-block/question.js",
+				"youtube-block/answer.html",
+				"youtube-block/answer.js",
+				"youtube-block/incorrect.html",
+				"youtube-block/incorrect.js",
+				"youtube-block/complete.html",
+				"youtube-block/complete.js"
+			]
 		}
 	]
 }
