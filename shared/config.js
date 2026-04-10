@@ -1,4 +1,3 @@
-// Edit this file to customize endpoints and ChatGPT behavior.
 (() => {
 	const config = {
 		zenStudy: {
