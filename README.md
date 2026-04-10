@@ -26,5 +26,8 @@ ZEN Studyのレポート進捗を表示し、ChatGPTのCSVスケジュールをG
 - zen-study-plus[MIT LICENSE]
 https://github.com/Level222/zen-study-plus
 
+## 実績
+- 学内コンペアプリ開発部門 2025年度 銅賞 メンター特別賞受賞
+
 ## License
 MIT (see `LICENSE`).
