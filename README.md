@@ -21,5 +21,10 @@ ZEN Studyのレポート進捗を表示し、ChatGPTのCSVスケジュールをG
 `zenStudy.siteOrigin` または `zenStudy.apiOrigin` を変更する場合は、
 `manifest.json` の `host_permissions` と `content_scripts.matches` も同じドメインに更新してください。
 
+## 使用OSSについて
+本プロジェクトでは以下のオープンソースソフトウェアを使用しています。
+- zen-study-plus[MIT LICENSE]
+https://github.com/Level222/zen-study-plus
+
 ## License
 MIT (see `LICENSE`).
