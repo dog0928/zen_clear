@@ -17,7 +17,7 @@ export const formatFullTimeText = (seconds) => {
 
 export const formatProgressAndGoalText = (currentSeconds, goalSeconds) => {
 	const percent = goalSeconds > 0 ? Math.min(100, (currentSeconds / goalSeconds) * 100) : 0;
-	const paddedPercent = String(Math.floor(percent)).padStart(3, '0');
+	const paddedPercent = String(Math.floor(percent));
 
 	const currentText = formatFullTimeText(currentSeconds);
 	const goalText = formatFullTimeText(goalSeconds);
